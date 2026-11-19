@@ -1,0 +1,50 @@
+name: CanchasApi CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout del Repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar .NET 10 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Configurar Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: CanchasApi26-08/frontend/package-lock.json
+
+    - name: Restaurar Dependencias Backend (.NET)
+      run: dotnet restore CanchasApi26-08/CanchasApi/CanchasApi.csproj
+
+    - name: Compilar Backend (.NET)
+      run: dotnet build CanchasApi26-08/CanchasApi/CanchasApi.csproj --no-restore -c Release
+
+    - name: Ejecutar Pruebas Automatizadas de Integración
+      run: dotnet test CanchasApi26-08/CanchasApi.Tests/CanchasApi.Tests.csproj -c Release --no-build --verbosity normal
+
+    - name: Instalar Dependencias Frontend (React)
+      run: |
+        cd CanchasApi26-08/frontend
+        npm ci
+
+    - name: Validar Linter y Tipos TypeScript Frontend
+      run: |
+        cd CanchasApi26-08/frontend
+        npm run build
+
+    - name: Construir Imágenes Docker (Smoke Build)
+      run: |
+        docker compose build

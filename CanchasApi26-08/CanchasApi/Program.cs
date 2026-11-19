@@ -13,6 +13,8 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpClient();
+
 // Configuración de CORS explícita para consumo desde el frontend
 const string FrontEndCorsPolicy = "FrontendPolicy";
 builder.Services.AddCors(options =>
@@ -134,6 +136,7 @@ app.MapComprobanteApi();
 app.MapResenaApi();
 app.MapMantenimientoApi();
 app.MapNotificacionApi();
+app.MapAnalisisIaApi();
 
 app.MapPost("/crear-admin-test", async (ReservasCanchasDbContext db, AuthService auth) =>
 {
