@@ -49,7 +49,7 @@ export const DashboardSection: React.FC = () => {
     try {
       const res = await canchasService.getMetricasDashboard();
       setData(res);
-    } catch (err: any) {
+    } catch {
       setError('Error al cargar métricas del backend.');
     } finally {
       setLoading(false);

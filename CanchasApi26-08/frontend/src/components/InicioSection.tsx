@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Trophy, ArrowRight, ShieldCheck, Clock, MapPin, Sparkles, Bot, Loader2, RefreshCw } from 'lucide-react';
+import { Calendar, Trophy, ArrowRight, ShieldCheck, Clock, MapPin, Sparkles, Bot, Loader2 } from 'lucide-react';
 import type { Cancha, Sede, Reserva } from '../types/cancha';
 import type { Usuario } from '../types/auth';
 import { canchasService } from '../api/canchasService';
