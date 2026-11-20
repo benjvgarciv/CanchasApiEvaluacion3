@@ -5,6 +5,7 @@ Sistema web completo de nivel de producción que integra front-end responsive y 
 **Asignatura:** Lenguaje de Programación Web II  
 **Evaluación:** Evaluación 3 — Proyecto Integrador de Sistema Web, Análisis de Datos y Plan de Despliegue (40% de la nota final)  
 **Integrantes:**
+* Rodrigo Tapia
 * Gustavo Jaramillo
 * Benjamin Garcia
 
