@@ -1,0 +1,96 @@
+name: Integración y Entrega Continua (CI/CD Pipeline)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  # ============================================================================
+  # 1. Job Backend: Compilación y Pruebas Unitarias/Integración .NET 10
+  # ============================================================================
+  backend-ci:
+    name: Backend CI (.NET 10)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del Repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar SDK de .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restaurar Dependencias NuGet
+        run: dotnet restore CanchasApi26-08/CanchasApi.slnx
+
+      - name: Compilar Solución (Release)
+        run: dotnet build CanchasApi26-08/CanchasApi.slnx --no-restore -c Release
+
+      - name: Ejecutar Suite de Pruebas Automatizadas
+        run: dotnet test CanchasApi26-08/CanchasApi.slnx --no-build --verbosity normal --collect:"XPlat Code Coverage"
+
+  # ============================================================================
+  # 2. Job Frontend: Lint, Build y Pruebas Vitest (React 19 + TypeScript)
+  # ============================================================================
+  frontend-ci:
+    name: Frontend CI (React 19 + TypeScript)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: CanchasApi26-08/frontend
+
+    steps:
+      - name: Checkout del Repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Entorno Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: CanchasApi26-08/frontend/package-lock.json
+
+      - name: Instalar Dependencias Limpias (npm ci)
+        run: npm ci
+
+      - name: Validación de Linter (Oxlint)
+        run: npm run lint
+
+      - name: Ejecutar Pruebas Automatizadas (Vitest)
+        run: npm test
+
+      - name: Compilar para Producción (Vite Build)
+        run: npm run build
+
+  # ============================================================================
+  # 3. Job Docker: Validación de Construcción de Contenedores Multi-Stage
+  # ============================================================================
+  docker-validation:
+    name: Docker Build Validation
+    needs: [backend-ci, frontend-ci]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del Repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Construir Imagen Docker Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./CanchasApi26-08/CanchasApi
+          push: false
+          tags: canchas-backend:test
+
+      - name: Construir Imagen Docker Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./CanchasApi26-08/frontend
+          push: false
+          tags: canchas-frontend:test

@@ -8,6 +8,9 @@ import { CanchasSection } from '../components/CanchasSection';
 import { SedesSection } from '../components/SedesSection';
 import { TiposCanchaSection } from '../components/TiposCanchaSection';
 import { ReservasSection } from '../components/ReservasSection';
+import { DashboardSection } from '../components/DashboardSection';
+import { ReportesSection } from '../components/ReportesSection';
+import { SkipLink } from '../components/SkipLink';
 import {
   Home,
   Trophy,
@@ -18,9 +21,11 @@ import {
   Menu,
   X,
   UserCheck,
+  BarChart3,
+  FileText,
 } from 'lucide-react';
 
-type TabType = 'inicio' | 'canchas' | 'sedes' | 'tipos' | 'reservas';
+type TabType = 'inicio' | 'canchas' | 'sedes' | 'tipos' | 'reservas' | 'bi' | 'reportes';
 
 export const Dashboard: React.FC = () => {
   const { usuario, logout } = useAuth();
@@ -138,6 +143,9 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="portal-layout">
+      {/* Enlace para saltar al contenido principal (Accesibilidad WCAG 2.2 AA) */}
+      <SkipLink />
+
       {/* Overlay para móviles */}
       <div
         className={`portal-sidebar-overlay ${mobileMenuOpen ? 'open' : ''}`}
@@ -227,6 +235,30 @@ export const Dashboard: React.FC = () => {
               <span>{isCliente ? 'Mis Reservas' : 'Reservas'}</span>
             </button>
           </li>
+
+          {/* Opción 6: Dashboard BI */}
+          <li>
+            <button
+              className={`portal-nav-item ${activeTab === 'bi' ? 'active' : ''}`}
+              onClick={() => handleSelectTab('bi')}
+            >
+              <BarChart3 size={18} />
+              <span>Dashboard BI</span>
+            </button>
+          </li>
+
+          {/* Opción 7: Reportes (Solo Administrador / Trabajador) */}
+          {canManage && (
+            <li>
+              <button
+                className={`portal-nav-item ${activeTab === 'reportes' ? 'active' : ''}`}
+                onClick={() => handleSelectTab('reportes')}
+              >
+                <FileText size={18} />
+                <span>Reportes</span>
+              </button>
+            </li>
+          )}
         </ul>
 
         {/* Footer del sidebar con info de usuario y botón de logout */}
@@ -289,7 +321,7 @@ export const Dashboard: React.FC = () => {
       </aside>
 
       {/* ÁREA DE CONTENIDO */}
-      <main className="portal-main">
+      <main className="portal-main" id="main-content" tabIndex={-1}>
         {/* Barra superior Topbar */}
         <div className="portal-topbar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -306,6 +338,8 @@ export const Dashboard: React.FC = () => {
               {activeTab === 'sedes' && 'Complejos y Sedes Deportivas'}
               {activeTab === 'tipos' && 'Tipos de Cancha y Tarifas'}
               {activeTab === 'reservas' && (isCliente ? 'Mis Reservas Agendadas' : 'Agenda de Reservas')}
+              {activeTab === 'bi' && 'Panel de Inteligencia de Negocios (BI)'}
+              {activeTab === 'reportes' && 'Centro de Reportes y Exportación'}
             </h2>
           </div>
 
@@ -401,6 +435,12 @@ export const Dashboard: React.FC = () => {
               onNavigateToCanchas={() => setActiveTab('canchas')}
             />
           )}
+
+          {/* 6. Vista Dashboard BI (Analítica y Visualizaciones) */}
+          {activeTab === 'bi' && <DashboardSection />}
+
+          {/* 7. Vista Reportes y Exportación */}
+          {activeTab === 'reportes' && <ReportesSection />}
         </div>
       </main>
     </div>

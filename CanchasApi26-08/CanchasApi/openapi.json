@@ -1,0 +1,161 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "CanchasApi - Plataforma de Gestión y Reservas de Complejos Deportivos",
+    "description": "API RESTful construida con ASP.NET Core 10 Minimal APIs para administración de canchas, sedes, reservas, análisis de datos, reportes y servicios de IA.",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5098",
+      "description": "Servidor de Desarrollo Local"
+    },
+    {
+      "url": "https://api.canchas.cl",
+      "description": "Servidor de Producción"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Salud del Sistema"],
+        "summary": "Verifica el estado de salud y conectividad con la base de datos SQL Server.",
+        "responses": {
+          "200": { "description": "Servicio y base de datos operativos." },
+          "503": { "description": "Error al conectar con la base de datos." }
+        }
+      }
+    },
+    "/api/v1/usuarios/login": {
+      "post": {
+        "tags": ["Usuarios y Autenticación"],
+        "summary": "Inicia sesión y genera token JWT HMAC-SHA256.",
+        "responses": {
+          "200": { "description": "Autenticación exitosa. Retorna token y datos del usuario." },
+          "401": { "description": "Credenciales inválidas." },
+          "429": { "description": "Límite de tasa excedido (Rate Limiting OWASP API4)." }
+        }
+      }
+    },
+    "/api/v1/usuarios/registro": {
+      "post": {
+        "tags": ["Usuarios y Autenticación"],
+        "summary": "Registra un nuevo usuario con rol Cliente por defecto (Mitigación Mass Assignment).",
+        "responses": {
+          "201": { "description": "Usuario registrado exitosamente." },
+          "400": { "description": "Datos de registro inválidos." },
+          "409": { "description": "El correo electrónico ya está registrado." }
+        }
+      }
+    },
+    "/api/v1/canchas": {
+      "get": {
+        "tags": ["Canchas"],
+        "summary": "Obtiene la lista de canchas disponibles con filtros por sede, tipo y paginación.",
+        "responses": {
+          "200": { "description": "Lista de canchas obtenida." }
+        }
+      },
+      "post": {
+        "tags": ["Canchas"],
+        "summary": "Crea una nueva cancha deportiva (Requiere rol Trabajador o Administrador).",
+        "responses": {
+          "201": { "description": "Cancha creada." },
+          "401": { "description": "No autenticado." },
+          "403": { "description": "Permisos insuficientes." }
+        }
+      }
+    },
+    "/api/v1/reservas": {
+      "get": {
+        "tags": ["Reservas"],
+        "summary": "Lista las reservas agendadas. Clientes solo acceden a sus reservas (Mitigación BOLA).",
+        "responses": {
+          "200": { "description": "Listado de reservas obtenido." }
+        }
+      },
+      "post": {
+        "tags": ["Reservas"],
+        "summary": "Crea una reserva deportiva verificando solapamiento horario en tiempo real.",
+        "responses": {
+          "201": { "description": "Reserva creada exitosamente." },
+          "400": { "description": "Fechas inválidas o cancha no disponible." },
+          "409": { "description": "Conflicto: la cancha ya está reservada en ese horario." }
+        }
+      }
+    },
+    "/api/v1/dashboard/metricas": {
+      "get": {
+        "tags": ["Dashboard y BI"],
+        "summary": "Retorna los 6 KPIs de negocio y las 4 series de datos para las visualizaciones analíticas.",
+        "responses": {
+          "200": { "description": "Métricas consolidadas de Business Intelligence." }
+        }
+      }
+    },
+    "/api/v1/reportes/operativo": {
+      "get": {
+        "tags": ["Reportes y Exportación"],
+        "summary": "Genera reporte operativo de arriendos con filtros por fecha, estado y sede.",
+        "responses": {
+          "200": { "description": "Datos del reporte operativo." }
+        }
+      }
+    },
+    "/api/v1/reportes/gerencial": {
+      "get": {
+        "tags": ["Reportes y Exportación"],
+        "summary": "Genera reporte gerencial consolidado por sede con subtotales e indicadores.",
+        "responses": {
+          "200": { "description": "Datos del reporte gerencial." }
+        }
+      }
+    },
+    "/api/v1/reportes/exportar-log": {
+      "post": {
+        "tags": ["Reportes y Exportación"],
+        "summary": "Registra auditoría de descarga de reportes (quién exportó qué reporte y formato).",
+        "responses": {
+          "200": { "description": "Auditoría registrada exitosamente." }
+        }
+      }
+    },
+    "/api/v1/ia/analisis-resenas": {
+      "post": {
+        "tags": ["Inteligencia Artificial"],
+        "summary": "Analiza opiniones de usuarios mediante servicio de IA para extraer sentimiento y mejoras.",
+        "responses": {
+          "200": { "description": "Diagnóstico de IA procesado." },
+          "400": { "description": "Reseñas vacías o inválidas." }
+        }
+      }
+    },
+    "/api/v1/ia/asistente-reserva": {
+      "post": {
+        "tags": ["Inteligencia Artificial"],
+        "summary": "Asistente conversacional inteligente para orientar a los clientes en la selección de arriendo.",
+        "responses": {
+          "200": { "description": "Sugerencia de IA generada." }
+        }
+      }
+    },
+    "/api/v1/ia/resumen-ejecutivo": {
+      "post": {
+        "tags": ["Inteligencia Artificial"],
+        "summary": "Genera diagnóstico estratégico de desempeño y recomendaciones para gerencia.",
+        "responses": {
+          "200": { "description": "Resumen ejecutivo generado." }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

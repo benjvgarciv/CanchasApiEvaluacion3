@@ -520,3 +520,88 @@ span[style*="fontWeight: bold"] {
   }
 }
 
+/* ==========================================================================
+   Accesibilidad WCAG 2.2 Nivel AA: Foco Visible, Reducción de Movimiento y Estilos de Impresión
+   ========================================================================== */
+
+/* 1. Indicador visual de foco accesible en todos los elementos interactivos */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-primary-focus);
+}
+
+/* 2. Respeto a las preferencias del usuario de reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 3. Hoja de estilos de impresión limpia (@media print - Criterio 7 Rúbrica) */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+  }
+
+  /* Ocultar elementos de navegación, barras laterales, filtros y botones */
+  .no-print,
+  .portal-sidebar,
+  .portal-topbar,
+  .btn-mobile-menu,
+  .portal-sidebar-overlay,
+  button,
+  header,
+  nav {
+    display: none !important;
+  }
+
+  .portal-layout {
+    display: block !important;
+  }
+
+  .portal-main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .portal-content-body {
+    padding: 0 !important;
+  }
+
+  .printable-area {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    border: 1px solid #94a3b8 !important;
+    padding: 6px 8px !important;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+}
+

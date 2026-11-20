@@ -75,7 +75,29 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
+// Servicio de Inteligencia Artificial (Inyección de dependencias con HttpClient tipado)
+builder.Services.AddHttpClient<IIaService, IaService>();
+
 var app = builder.Build();
+
+// Manejador centralizado de excepciones (Formato estándar RFC 7807 ProblemDetails)
+app.UseExceptionHandler(exceptionHandlerApp =>
+{
+    exceptionHandlerApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/problem+json";
+        var problem = new
+        {
+            Type = "https://tools.ietf.org/html/rfc7807",
+            Title = "Ha ocurrido un error inesperado en el servidor.",
+            Status = StatusCodes.Status500InternalServerError,
+            Detail = "Consulte los registros del sistema para más detalles.",
+            Instance = context.Request.Path.Value
+        };
+        await context.Response.WriteAsJsonAsync(problem);
+    });
+});
 
 app.UseRequestLogging();
 
@@ -134,6 +156,9 @@ app.MapComprobanteApi();
 app.MapResenaApi();
 app.MapMantenimientoApi();
 app.MapNotificacionApi();
+app.MapIaApi();
+app.MapDashboardApi();
+app.MapReporteApi();
 
 app.MapPost("/crear-admin-test", async (ReservasCanchasDbContext db, AuthService auth) =>
 {

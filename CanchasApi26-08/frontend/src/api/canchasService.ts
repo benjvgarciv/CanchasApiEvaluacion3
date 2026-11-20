@@ -92,6 +92,55 @@ export const canchasService = {
     const response = await apiClient.put<Reserva>(`/api/v1/reservas/${id}`, reserva);
     return response.data;
   },
+
+  // Dashboard & Métricas BI
+  getMetricasDashboard: async () => {
+    const response = await apiClient.get('/api/v1/dashboard/metricas');
+    return response.data;
+  },
+
+  // Reportes y Exportación
+  getReporteOperativo: async (params?: {
+    fechaInicio?: string;
+    fechaFin?: string;
+    estado?: string;
+    sedeId?: number;
+    page?: number;
+    pageSize?: number;
+  }) => {
+    const response = await apiClient.get('/api/v1/reportes/operativo', { params });
+    return response.data;
+  },
+
+  getReporteGerencial: async () => {
+    const response = await apiClient.get('/api/v1/reportes/gerencial');
+    return response.data;
+  },
+
+  registrarLogExportacion: async (tipoReporte: string, formato: string, usuarioSolicitante?: string) => {
+    const response = await apiClient.post('/api/v1/reportes/exportar-log', {
+      tipoReporte,
+      formato,
+      usuarioSolicitante,
+    });
+    return response.data;
+  },
+
+  // Servicios de Inteligencia Artificial (IA)
+  analizarResenasConIa: async (resenas?: string[]) => {
+    const response = await apiClient.post('/api/v1/ia/analisis-resenas', { resenas });
+    return response.data;
+  },
+
+  asistirReservaConIa: async (consulta: string) => {
+    const response = await apiClient.post('/api/v1/ia/asistente-reserva', { consulta });
+    return response.data;
+  },
+
+  getResumenEjecutivoIa: async () => {
+    const response = await apiClient.post('/api/v1/ia/resumen-ejecutivo');
+    return response.data;
+  },
 };
 
 
