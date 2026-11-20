@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 
 // URL base configurada desde variables de entorno con fallback
-const API_URL = import.meta.env.VITE_API_URL || 'https://localhost:7269';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5098';
 
 export const apiClient = axios.create({
   baseURL: API_URL,

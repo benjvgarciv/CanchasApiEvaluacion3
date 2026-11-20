@@ -2,7 +2,7 @@ name: Integración y Entrega Continua (CI/CD Pipeline)
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "develop" ]
   pull_request:
     branches: [ "main", "master" ]
 
@@ -26,11 +26,11 @@ jobs:
       - name: Restaurar Dependencias NuGet
         run: dotnet restore CanchasApi26-08/CanchasApi.slnx
 
-      - name: Compilar Solución (Release)
-        run: dotnet build CanchasApi26-08/CanchasApi.slnx --no-restore -c Release
+      - name: Compilar Solución (.NET 10)
+        run: dotnet build CanchasApi26-08/CanchasApi.slnx --no-restore
 
-      - name: Ejecutar Suite de Pruebas Automatizadas
-        run: dotnet test CanchasApi26-08/CanchasApi.slnx --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      - name: Ejecutar Suite de Pruebas Automatizadas (16/16)
+        run: dotnet test CanchasApi26-08/CanchasApi.slnx --no-build --verbosity normal
 
   # ============================================================================
   # 2. Job Frontend: Lint, Build y Pruebas Vitest (React 19 + TypeScript)
@@ -60,7 +60,7 @@ jobs:
       - name: Validación de Linter (Oxlint)
         run: npm run lint
 
-      - name: Ejecutar Pruebas Automatizadas (Vitest)
+      - name: Ejecutar Pruebas Automatizadas (Vitest 9/9)
         run: npm test
 
       - name: Compilar para Producción (Vite Build)
