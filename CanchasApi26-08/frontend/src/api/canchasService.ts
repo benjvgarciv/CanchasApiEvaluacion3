@@ -141,6 +141,17 @@ export const canchasService = {
     const response = await apiClient.post('/api/v1/ia/resumen-ejecutivo');
     return response.data;
   },
+
+  // Asistente de IA para Diagnósticos y Resúmenes (Gustavo)
+  generarResumenIa: async (pregunta?: string): Promise<{
+    resumen: string;
+    totalReservasAnalizadas: number;
+    tasaOcupacion: number;
+    totalRecaudado: number;
+    proveedor: string;
+    fechaGeneracion: string;
+  }> => {
+    const response = await apiClient.post('/api/v1/analisis/ia-resumen', { pregunta });
+    return response.data;
+  },
 };
-
-

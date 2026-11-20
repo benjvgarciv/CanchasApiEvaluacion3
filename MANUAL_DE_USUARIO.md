@@ -12,7 +12,7 @@ El sistema CanchasApi permite administrar el arriendo y catálogo de canchas dep
 ## 👤 1. Manual para el Rol: CLIENTE
 
 ### 1.1. Inicio de Sesión y Acceso
-1. Ingresa a la plataforma web (`http://localhost:5173` o dominio del complejo).
+1. Ingresa a la plataforma web (`http://localhost:5173` o `http://localhost`).
 2. En la pantalla de bienvenida, ingresa tus credenciales:
    * **Correo:** `cliente@canchas.com`
    * **Contraseña:** `123456`

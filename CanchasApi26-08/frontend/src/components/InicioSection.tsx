@@ -1,7 +1,8 @@
-import React from 'react';
-import { Calendar, Trophy, ArrowRight, ShieldCheck, Clock, MapPin, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, Trophy, ArrowRight, ShieldCheck, Clock, MapPin, Sparkles, Bot, Loader2, RefreshCw } from 'lucide-react';
 import type { Cancha, Sede, Reserva } from '../types/cancha';
 import type { Usuario } from '../types/auth';
+import { canchasService } from '../api/canchasService';
 
 interface InicioSectionProps {
   usuario: Usuario | null;
@@ -19,10 +20,37 @@ export const InicioSection: React.FC<InicioSectionProps> = ({
   onNavigateTab,
 }) => {
   const isCliente = usuario?.rol === 'Cliente';
+  const canManage = usuario?.rol === 'Administrador' || usuario?.rol === 'Trabajador';
   const canchasDisponibles = canchas.filter((c) => c.estado === 'Disponible').length;
   const misReservasCount = isCliente
     ? reservas.filter((r) => r.usuarioId === usuario?.id).length
     : reservas.length;
+
+  // Estados para Asistente de IA
+  const [loadingIa, setLoadingIa] = useState(false);
+  const [errorIa, setErrorIa] = useState<string | null>(null);
+  const [iaData, setIaData] = useState<{
+    resumen: string;
+    totalReservasAnalizadas: number;
+    tasaOcupacion: number;
+    totalRecaudado: number;
+    proveedor: string;
+    fechaGeneracion: string;
+  } | null>(null);
+
+  const handleConsultarIa = async () => {
+    setLoadingIa(true);
+    setErrorIa(null);
+    try {
+      const data = await canchasService.generarResumenIa();
+      setIaData(data);
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { error?: string } }; message?: string };
+      setErrorIa(errorObj.response?.data?.error || errorObj.message || 'Error al conectar con el Asistente de IA.');
+    } finally {
+      setLoadingIa(false);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -296,6 +324,147 @@ export const InicioSection: React.FC<InicioSectionProps> = ({
           y estacionamiento privado garantizado.
         </p>
       </div>
+
+      {/* Módulo Asistente de IA para Resúmenes Ejecutivos */}
+      {canManage && (
+        <div
+          className="portal-card"
+          style={{
+            padding: '2rem',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid #e0e7ff',
+            background: 'linear-gradient(to right bottom, #ffffff, #f8fafc)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.25rem',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '10px',
+                  backgroundColor: '#eef2ff',
+                  color: '#4f46e5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Bot size={24} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1e1b4b' }}>
+                  Asistente de Inteligencia Artificial para Resúmenes
+                </h3>
+                <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                  Diagnóstico gerencial y análisis predictivo en tiempo real
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleConsultarIa}
+              disabled={loadingIa}
+              className="btn btn-primary"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                backgroundColor: '#4f46e5',
+                borderColor: '#4f46e5',
+                padding: '0.65rem 1.25rem',
+                fontSize: '0.92rem',
+              }}
+            >
+              {loadingIa ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Analizando datos...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={18} />
+                  Generar Resumen con IA
+                </>
+              )}
+            </button>
+          </div>
+
+          {errorIa && (
+            <div
+              style={{
+                padding: '1rem',
+                backgroundColor: '#fef2f2',
+                color: '#b91c1c',
+                borderRadius: '8px',
+                fontSize: '0.9rem',
+              }}
+            >
+              {errorIa}
+            </div>
+          )}
+
+          {iaData ? (
+            <div
+              style={{
+                marginTop: '0.5rem',
+                padding: '1.5rem',
+                backgroundColor: '#ffffff',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {iaData.proveedor}
+                </span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                  Generado: {new Date(iaData.fechaGeneracion).toLocaleString()}
+                </span>
+              </div>
+
+              <div
+                style={{
+                  fontSize: '0.95rem',
+                  lineHeight: 1.7,
+                  color: '#334155',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
+                {iaData.resumen}
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '1.5rem',
+                  flexWrap: 'wrap',
+                  paddingTop: '1rem',
+                  borderTop: '1px solid #f1f5f9',
+                  fontSize: '0.85rem',
+                  color: 'var(--color-text-muted)',
+                }}
+              >
+                <span><strong>Reservas analizadas:</strong> {iaData.totalReservasAnalizadas}</span>
+                <span><strong>Efectividad:</strong> {iaData.tasaOcupacion}%</span>
+                <span><strong>Total Recaudado:</strong> ${iaData.totalRecaudado.toLocaleString()} CLP</span>
+              </div>
+            </div>
+          ) : (
+            !loadingIa && (
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                Haz clic en &quot;Generar Resumen con IA&quot; para que el asistente analice las reservas históricas, calcule tasas de efectividad y entregue recomendaciones comerciales para el recinto.
+              </p>
+            )
+          )}
+        </div>
+      )}
     </div>
   );
 };

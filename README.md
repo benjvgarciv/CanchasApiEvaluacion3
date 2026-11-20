@@ -1,10 +1,12 @@
 # Plataforma Integral de Gestión y Reservas de Complejos Deportivos (CanchasApi)
 
-Sistema web completo de nivel de producción que integra front-end responsive y accesible, backend y API RESTful segura, base de datos relacional normalizada con migraciones, dashboard de análisis de datos e indicadores (Business Intelligence), centro de reportes exportables a Excel, PDF, CSV e impresión, integración con servicios de Inteligencia Artificial externa, contenerización con Docker Compose y pipeline de Integración Continua (CI/CD).
+Sistema web completo de nivel de producción que integra front-end responsive y accesible, backend y API RESTful segura, base de datos relacional normalizada con migraciones, dashboard de análisis de datos e indicadores (Business Intelligence), centro de reportes exportables a Excel, PDF, CSV e impresión, integración con servicios de Inteligencia Artificial externa (OpenAI y Google Gemini), contenerización con Docker Compose y pipeline de Integración Continua (CI/CD).
 
 **Asignatura:** Lenguaje de Programación Web II  
 **Evaluación:** Evaluación 3 — Proyecto Integrador de Sistema Web, Análisis de Datos y Plan de Despliegue (40% de la nota final)  
-**Semana / Hito:** Hito 4 — Análisis, Reportes y Plan de Despliegue (Alineado 100% a la Rúbrica de Nivel Destacado)
+**Integrantes:**
+* Gustavo Jaramillo
+* Benjamin Garcia
 
 ---
 
@@ -13,8 +15,8 @@ Sistema web completo de nivel de producción que integra front-end responsive y 
 El sistema completo se ejecuta con **un único comando estándar**, levantando la base de datos SQL Server, la API en .NET 10 y el Front-End en Nginx:
 
 ```bash
-# 1. Clonar el repositorio y acceder a la raíz
-cd CanchasApiEvaluacion3
+# 1. Configurar variables de entorno iniciales
+cp .env.example .env
 
 # 2. Levantar la infraestructura completa en contenedores
 docker compose up --build -d
@@ -32,7 +34,7 @@ Una vez que los contenedores estén saludables:
 | Servicio / Contenedor | Tecnología | Puerto Host | Descripción y Enlace |
 | :--- | :--- | :---: | :--- |
 | **canchas-frontend** | React 19, TypeScript, Nginx Alpine | `80` / `5173` | [Portal Web](http://localhost) (Acceso general, clientes y administración) |
-| **canchas-backend** | ASP.NET Core 10 Minimal APIs, EF Core | `5098` (interno 8080) | [Scalar API Reference](http://localhost:5098/scalar/v1) \| Contrato: `openapi.json` |
+| **canchas-backend** | ASP.NET Core 10 Minimal APIs, EF Core | `5098` / `8080` | [Scalar API Reference](http://localhost:5098/scalar/v1) \| Contrato: `openapi.json` |
 | **canchas-sqlserver** | Microsoft SQL Server 2022 | `1433` | Motor de base de datos relacional con 12 entidades en 3FN |
 
 ---

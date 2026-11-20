@@ -1,21 +1,24 @@
 services:
   # 1. Base de Datos Relacional SQL Server 2022
-  db:
+  sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: canchas-sqlserver
     restart: unless-stopped
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${DB_PASSWORD:-ClaveSegura123!}
-      - MSSQL_PID=Developer
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "${SA_PASSWORD:-${DB_PASSWORD:-TuPasswordSeguro123!}}"
+      MSSQL_PID: "Developer"
     ports:
-      - "${DB_PORT:-1433}:1433"
+      - "${SQL_PORT:-${DB_PORT:-1433}}:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
     networks:
-      - canchas-network
+      canchas-network:
+        aliases:
+          - db
+          - sqlserver
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD:-ClaveSegura123!} -C -Q 'SELECT 1' || exit 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"${SA_PASSWORD:-${DB_PASSWORD:-TuPasswordSeguro123!}}\" -C -Q \"SELECT 1\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -31,17 +34,25 @@ services:
     ports:
       - "${API_PORT:-5098}:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__miconexion=Server=db,1433;Database=ReservasCanchasDB;User Id=sa;Password=${DB_PASSWORD:-ClaveSegura123!};TrustServerCertificate=True;
-      - Jwt__Key=${JWT_KEY:-SuperSecretSecretKeyWithAtLeast32BytesLength!}
-      - Jwt__Issuer=${JWT_ISSUER:-CanchasApi}
-      - Jwt__Audience=${JWT_AUDIENCE:-CanchasApp}
-      - AI__ApiKey=${AI_API_KEY:-}
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ConnectionStrings__miconexion: "Server=sqlserver,1433;Database=ReservasCanchasDB;User Id=sa;Password=${SA_PASSWORD:-${DB_PASSWORD:-TuPasswordSeguro123!}};TrustServerCertificate=True;"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=ReservasCanchasDB;User Id=sa;Password=${SA_PASSWORD:-${DB_PASSWORD:-TuPasswordSeguro123!}};TrustServerCertificate=True;"
+      Jwt__Key: "${JWT_KEY:-SuperSecretKeyForCanchasApiEvaluacion3_Min32Chars!2026}"
+      Jwt__Issuer: "${JWT_ISSUER:-CanchasApi}"
+      Jwt__Audience: "${JWT_AUDIENCE:-CanchasApp}"
+      AI__ApiKey: "${AI_API_KEY:-}"
+      Gemini__ApiKey: "${GEMINI_API_KEY:-}"
     depends_on:
-      db:
+      sqlserver:
         condition: service_healthy
     networks:
       - canchas-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   # 3. Frontend React 19 + TypeScript + Nginx Alpine
   frontend:
@@ -53,7 +64,8 @@ services:
     ports:
       - "${FRONTEND_PORT:-80}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - canchas-network
 
