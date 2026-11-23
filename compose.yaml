@@ -12,6 +12,7 @@ services:
       - "${SQL_PORT:-${DB_PORT:-1433}}:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
+      - ./seed_500_reservas.sql:/seed_500_reservas.sql:ro
     networks:
       canchas-network:
         aliases:

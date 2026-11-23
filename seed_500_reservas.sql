@@ -35,11 +35,11 @@ BEGIN
 END
 
 -- 3. Canchas (al menos 6)
-DECLARE @Sede1Id INT = (SELECT TOP 1 [Id] FROM [Sede] ORDER BY [Id]);
-DECLARE @Sede2Id INT = (SELECT TOP 1 [Id] FROM [Sede] WHERE [Id] <> @Sede1Id ORDER BY [Id]);
-DECLARE @TipoF7 INT = (SELECT TOP 1 [Id] FROM [TipoCancha] WHERE [Nombre] LIKE '%Fútbol%');
-DECLARE @TipoPadel INT = (SELECT TOP 1 [Id] FROM [TipoCancha] WHERE [Nombre] LIKE '%Pádel%');
-DECLARE @TipoTenis INT = (SELECT TOP 1 [Id] FROM [TipoCancha] WHERE [Nombre] LIKE '%Tenis%');
+DECLARE @Sede1Id INT = COALESCE((SELECT TOP 1 [Id] FROM [Sede] ORDER BY [Id]), 1);
+DECLARE @Sede2Id INT = COALESCE((SELECT TOP 1 [Id] FROM [Sede] WHERE [Id] <> @Sede1Id ORDER BY [Id]), @Sede1Id);
+DECLARE @TipoF7 INT = COALESCE((SELECT TOP 1 [Id] FROM [TipoCancha] WHERE [Nombre] LIKE N'%F%tbol%'), 1);
+DECLARE @TipoPadel INT = COALESCE((SELECT TOP 1 [Id] FROM [TipoCancha] WHERE [Nombre] LIKE N'%del%'), 2);
+DECLARE @TipoTenis INT = COALESCE((SELECT TOP 1 [Id] FROM [TipoCancha] WHERE [Nombre] LIKE N'%Tenis%'), 3);
 
 IF (SELECT COUNT(*) FROM [Cancha]) < 6
 BEGIN
