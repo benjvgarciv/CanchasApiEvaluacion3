@@ -13,6 +13,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
 WORKDIR /app
 EXPOSE 8080
 
+# Instalar librerías de globalización (ICU) requeridas por Microsoft.Data.SqlClient para SQL Server en Alpine
+RUN apk add --no-cache icu-libs icu-data-full
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
 ENV ASPNETCORE_HTTP_PORTS=8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 

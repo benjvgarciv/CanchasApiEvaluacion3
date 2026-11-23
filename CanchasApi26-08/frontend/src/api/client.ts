@@ -1,7 +1,10 @@
 import axios, { AxiosError } from 'axios';
 
-// URL base configurada desde variables de entorno con fallback
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5098';
+// URL base configurada:
+// - Si estamos en el navegador en Docker (puerto 80), usamos URL relativa ('') para ir por el proxy de Nginx (/api/)
+// - Si estamos en desarrollo local con Vite (puerto 5173), usamos http://localhost:5098
+const isDevPort = typeof window !== 'undefined' && window.location.port === '5173';
+const API_URL = isDevPort ? 'http://localhost:5098' : '';
 
 export const apiClient = axios.create({
   baseURL: API_URL,

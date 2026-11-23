@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using CanchasApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,8 +11,13 @@ public static class DashboardApi
         var group = app.MapGroup("/api/v1/dashboard")
                        .WithTags("Dashboard y Analítica (BI)");
 
-        group.MapGet("/metricas", async (ReservasCanchasDbContext db, CancellationToken ct) =>
+        group.MapGet("/metricas", async (ClaimsPrincipal user, ReservasCanchasDbContext db, CancellationToken ct) =>
         {
+            var currentRole = user.FindFirst(ClaimTypes.Role)?.Value;
+            if (currentRole == "Cliente")
+            {
+                return Results.Forbid();
+            }
             // 1. Conteo total y estados
             var totalReservas = await db.Reservas.CountAsync(ct);
             var completadas = await db.Reservas.CountAsync(r => r.Estado == "Completada", ct);

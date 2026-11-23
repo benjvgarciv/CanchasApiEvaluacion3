@@ -23,6 +23,7 @@ import {
   UserCheck,
   BarChart3,
   FileText,
+  Code,
 } from 'lucide-react';
 
 type TabType = 'inicio' | 'canchas' | 'sedes' | 'tipos' | 'reservas' | 'bi' | 'reportes';
@@ -137,6 +138,11 @@ export const Dashboard: React.FC = () => {
   };
 
   const handleSelectTab = (tab: TabType) => {
+    if ((tab === 'sedes' || tab === 'tipos' || tab === 'reportes' || tab === 'bi') && !canManage) {
+      setActiveTab('inicio');
+      setMobileMenuOpen(false);
+      return;
+    }
     setActiveTab(tab);
     setMobileMenuOpen(false);
   };
@@ -236,16 +242,18 @@ export const Dashboard: React.FC = () => {
             </button>
           </li>
 
-          {/* Opción 6: Dashboard BI */}
-          <li>
-            <button
-              className={`portal-nav-item ${activeTab === 'bi' ? 'active' : ''}`}
-              onClick={() => handleSelectTab('bi')}
-            >
-              <BarChart3 size={18} />
-              <span>Dashboard BI</span>
-            </button>
-          </li>
+          {/* Opción 6: Dashboard BI (Solo Administrador y Trabajador) */}
+          {canManage && (
+            <li>
+              <button
+                className={`portal-nav-item ${activeTab === 'bi' ? 'active' : ''}`}
+                onClick={() => handleSelectTab('bi')}
+              >
+                <BarChart3 size={18} />
+                <span>Dashboard BI</span>
+              </button>
+            </li>
+          )}
 
           {/* Opción 7: Reportes (Solo Administrador / Trabajador) */}
           {canManage && (
@@ -259,6 +267,20 @@ export const Dashboard: React.FC = () => {
               </button>
             </li>
           )}
+
+          {/* Opción 8: Documentación de la API (Scalar / OpenAPI) */}
+          <li>
+            <a
+              href="/scalar/v1"
+              target="_blank"
+              rel="noreferrer"
+              className="portal-nav-item"
+              style={{ textDecoration: 'none' }}
+            >
+              <Code size={18} />
+              <span>Documentación API</span>
+            </a>
+          </li>
         </ul>
 
         {/* Footer del sidebar con info de usuario y botón de logout */}
@@ -436,8 +458,8 @@ export const Dashboard: React.FC = () => {
             />
           )}
 
-          {/* 6. Vista Dashboard BI (Analítica y Visualizaciones) */}
-          {activeTab === 'bi' && <DashboardSection />}
+          {/* 6. Vista Dashboard BI (Analítica y Visualizaciones - Solo Administrador y Trabajador) */}
+          {activeTab === 'bi' && canManage && <DashboardSection />}
 
           {/* 7. Vista Reportes y Exportación */}
           {activeTab === 'reportes' && <ReportesSection />}

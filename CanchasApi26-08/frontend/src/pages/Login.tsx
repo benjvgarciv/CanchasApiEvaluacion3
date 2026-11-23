@@ -35,10 +35,14 @@ export const Login: React.FC = () => {
           setErrorMsg('Credenciales inválidas. Verifica tu correo y contraseña.');
         } else if (err.response?.status === 429) {
           setErrorMsg('Demasiados intentos fallidos. Por favor, espera un minuto antes de reintentar.');
+        } else if (err.response?.data?.detail) {
+          setErrorMsg(err.response.data.detail);
         } else if (err.response?.data?.error) {
           setErrorMsg(err.response.data.error);
+        } else if (err.response?.status) {
+          setErrorMsg(`Error del servidor (${err.response.status}): ${err.response.data?.detail || err.response.data?.message || err.response.statusText || 'Error interno'}`);
         } else {
-          setErrorMsg('No se pudo conectar con el servidor. Intenta nuevamente.');
+          setErrorMsg(`Error de conexión (${err.message || 'Sin respuesta del servidor'}).`);
         }
       } else {
         setErrorMsg('Ocurrió un error inesperado al iniciar sesión.');
@@ -111,6 +115,17 @@ export const Login: React.FC = () => {
         >
           {isSubmitting ? 'Iniciando sesión...' : 'Entrar'}
         </button>
+
+        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+          <a
+            href="/scalar/v1"
+            target="_blank"
+            rel="noreferrer"
+            style={{ fontSize: '0.88rem', color: '#2563eb', textDecoration: 'none', fontWeight: 600 }}
+          >
+            📘 Ver Menú y Documentación de la API (Scalar) ➔
+          </a>
+        </div>
       </form>
     </main>
   );
